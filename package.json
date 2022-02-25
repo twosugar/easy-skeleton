@@ -10,14 +10,19 @@
   "engines": {
     "node": ">=10"
   },
+  "bin": {
+    "easy-skeleton": "scripts/start.js"
+  },
   "scripts": {
     "start": "tsdx watch",
     "build": "tsdx build",
     "test": "tsdx test",
-    "lint": "tsdx lint",
+    "lint": "tsdx lint src",
+    "lint-fix": "tsdx lint src --fix",
     "prepare": "tsdx build",
     "size": "size-limit",
-    "analyze": "size-limit --why"
+    "analyze": "size-limit --why",
+    "auto-test": "easy-skeleton --config ./es.config.json"
   },
   "peerDependencies": {},
   "husky": {
@@ -60,6 +65,8 @@
     "typescript": "^4.5.5"
   },
   "dependencies": {
+    "colors": "^1.4.0",
+    "commander": "^9.0.0",
     "puppeteer": "^13.4.0"
   }
 }
