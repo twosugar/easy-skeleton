@@ -1,5 +1,8 @@
 import { OptionsType } from './types/index';
 import openBrowser from './openBrowser';
-export const getSkeleton = (options: OptionsType) => {
-  openBrowser(options);
+import createSkeleton from './createSkeleton';
+
+export const getSkeleton = async (options: OptionsType) => {
+  const { page, browser } = await openBrowser(options);
+  createSkeleton(page, browser, options);
 };

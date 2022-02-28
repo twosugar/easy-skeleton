@@ -1,3 +1,5 @@
 {
-    "pageUrl": "http://www.baidu.com"
+    "headless": false,
+    "pageUrl": "http://www.baidu.com",
+    "selector": ".hotsearch-item"
 }

@@ -2,15 +2,17 @@
  * @Description: puppeteer open brower
  * @Date: 2022-02-24 14:53:22
  * @FilePath: /easy-skeleton/src/openBrowser.ts
- * @LastEditTime: 2022-02-25 17:43:42
+ * @LastEditTime: 2022-02-28 17:10:09
  */
-import puppeteer from 'puppeteer';
-import fs from 'fs';
+import puppeteer, { Page, Browser } from 'puppeteer';
+// import fs from 'fs';
 import { OptionsType } from './types/index';
 
-const openBrowser = async (options: OptionsType) => {
-  const browser = await puppeteer.launch({
-    headless: true,
+const openBrowser = async (
+  options: OptionsType
+): Promise<{ page: Page; browser: Browser }> => {
+  const browser: Browser = await puppeteer.launch({
+    headless: options.headless === false ? false : true,
     defaultViewport: { width: 1440, height: 780 },
     ignoreHTTPSErrors: false, //忽略 https 报错
     args: [
@@ -22,7 +24,7 @@ const openBrowser = async (options: OptionsType) => {
       '--start-fullscreen',
     ],
   });
-  const page = await browser.newPage();
+  const page: Page = await browser.newPage();
   //There are more than 100 values ​​for device
   const device = puppeteer.devices[options.device || ''];
 
@@ -31,10 +33,7 @@ const openBrowser = async (options: OptionsType) => {
   }
 
   await page.goto(options.pageUrl);
-  if (!fs.existsSync(options.path)) {
-    fs.mkdirSync(options.path);
-  }
-  console.log(11111, page, options);
+  return { page, browser };
 };
 
 export default openBrowser;

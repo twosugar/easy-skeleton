@@ -67,6 +67,7 @@
   "dependencies": {
     "colors": "^1.4.0",
     "commander": "^9.0.0",
-    "puppeteer": "^13.4.0"
+    "puppeteer": "^13.4.0",
+    "update-notifier": "^5.1.0"
   }
 }
