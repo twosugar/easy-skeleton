@@ -2,7 +2,7 @@
  * @Description:
  * @Date: 2022-02-24 16:44:16
  * @FilePath: /easy-skeleton/src/types/index.d.ts
- * @LastEditTime: 2022-02-28 17:08:43
+ * @LastEditTime: 2022-03-02 15:27:16
  */
 export interface OptionsType {
   pageUrl: string;
@@ -11,4 +11,21 @@ export interface OptionsType {
   device?: string;
   cookie?: Array<object>;
   path?: string;
+}
+
+interface rectType {
+  bottom: number;
+  height: number;
+  left: number;
+  right: number;
+  top: number;
+  width: number;
+  x: number;
+  y: number;
+}
+
+export interface AstType {
+  tagName: string;
+  rect: rectType;
+  children: Array<AstType>;
 }
