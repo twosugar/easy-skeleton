@@ -1,5 +1,7 @@
 {
     "headless": false,
     "pageUrl": "http://www.baidu.com",
-    "selector": ".hotsearch-item"
+    "selector": ".s-hotsearch-content",
+    "skeletonColor": "",
+    "waitTime": ""
 }
