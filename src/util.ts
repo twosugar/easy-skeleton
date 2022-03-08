@@ -16,16 +16,9 @@ export const sleep = (time: number) => {
 /**
  * @description: 渲染骨架屏时，可选择性忽略的标签忽略标签
  */
-export const renderSkeletonIgnoreLabels = [
-  'SPAN',
-  'P'
-]
+export const renderSkeletonIgnoreLabels = ['SPAN', 'P'];
 
 /**
  * @description: 遍历页面dom时可忽略的标签
  */
-export const mapDomIgnoreLabels = [
-  'SCRIPT',
-  'LINK',
-  'STYLE'
-]
+export const mapDomIgnoreLabels = ['SCRIPT', 'LINK', 'STYLE'];

@@ -87,11 +87,11 @@ const replacePageElements = async (
 };
 
 const createSkeletonPicture = async (page: Page) => {
-  const content = await page.$("#skeleton-container")
+  const content = await page.$('#skeleton-container');
   await content?.screenshot({
-    path: './skeletonFile/skeleton.png'
-  })
-}
+    path: './skeletonFile/skeleton.png',
+  });
+};
 
 /**
  * @description: 遍历dom json树
@@ -109,11 +109,14 @@ const ergodicAst = (params: AstType, t: string): string => {
   for (const element of params.children) {
     const rect = element.rect;
     const className = element.children?.length ? '' : 'skeleton-common';
-    let child = ''
+    let child = '';
     // 没有显示内容的标签，就算有width、height也不显示
-    const ignoreCondition = renderSkeletonIgnoreLabels.includes(element.tagName) && !element.children?.length && !element.innerText
+    const ignoreCondition =
+      renderSkeletonIgnoreLabels.includes(element.tagName) &&
+      !element.children?.length &&
+      !element.innerText;
     if (ignoreCondition) {
-      child = ''
+      child = '';
     } else {
       child = `${_t}<div class="${className}" style="position:absolute;width:${
         rect.width
@@ -137,7 +140,7 @@ const createSkeleton = async (
   await page.waitForSelector(selector);
   //在客户端 window注册函数
   await page.exposeFunction('getSelector', () => selector);
-  await page.exposeFunction('getMapDomIgnoreLabels', () => mapDomIgnoreLabels)
+  await page.exposeFunction('getMapDomIgnoreLabels', () => mapDomIgnoreLabels);
   const res = await page.evaluate(`(async () => {
    // @ts-ignore
    const selector = await getSelector()
@@ -177,8 +180,8 @@ const createSkeleton = async (
   console.log('browser', browser);
   createHtml(res, options);
   replacePageElements(page, options.selector);
-  await sleep(500)
-  createSkeletonPicture(page)
+  await sleep(500);
+  createSkeletonPicture(page);
 };
 
 export default createSkeleton;
