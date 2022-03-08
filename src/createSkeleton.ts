@@ -2,12 +2,13 @@
  * @Description: create selecton by selector
  * @Date: 2022-02-28 14:45:16
  * @FilePath: /easy-skeleton/src/createSkeleton.ts
- * @LastEditTime: 2022-03-04 18:13:17
+ * @LastEditTime: 2022-03-08 18:04:26
  */
 import { Page, Browser } from 'puppeteer';
 import fs from 'fs';
 import colors from 'colors';
 import { OptionsType, AstType } from './types/index';
+import { sleep, renderSkeletonIgnoreLabels, mapDomIgnoreLabels } from './util';
 
 /**
  * @description: 生成骨架屏 html
@@ -20,9 +21,9 @@ const createHtml = (params: AstType, options: OptionsType): void => {
   const color = options.skeletonColor || '#f7f8fb';
   const className = params.children?.length ? '' : 'skeleton-common';
 
-  const str = `<div class="${className}" style="position:relative;z-index:9999;width:${
+  const str = `<div id="skeleton-container" class="${className}" style="position:relative;z-index:9999;width:${
     rect.width
-  }px;height:${rect.height}px;" data-tag="${params.tagName}">\n\t<style>
+  }px;height:${rect.height}px" data-tag="${params.tagName}">\n\t<style>
     .skeleton-common {
       background-color: ${color};
       animation: loading 8s linear infinite;
@@ -85,6 +86,13 @@ const replacePageElements = async (
   })()`);
 };
 
+const createSkeletonPicture = async (page: Page) => {
+  const content = await page.$("#skeleton-container")
+  await content?.screenshot({
+    path: './skeletonFile/skeleton.png'
+  })
+}
+
 /**
  * @description: 遍历dom json树
  * @param {AstType} params  dom json树
@@ -101,15 +109,21 @@ const ergodicAst = (params: AstType, t: string): string => {
   for (const element of params.children) {
     const rect = element.rect;
     const className = element.children?.length ? '' : 'skeleton-common';
-
-    res =
-      res +
-      `${_t}<div class="${className}" style="position:absolute;width:${
+    let child = ''
+    // 没有显示内容的标签，就算有width、height也不显示
+    const ignoreCondition = renderSkeletonIgnoreLabels.includes(element.tagName) && !element.children?.length && !element.innerText
+    if (ignoreCondition) {
+      child = ''
+    } else {
+      child = `${_t}<div class="${className}" style="position:absolute;width:${
         rect.width
       }px;height:${rect.height}px;left:${rect.left -
         params.rect.left}px;top:${rect.top - params.rect.top}px;" data-tag="${
         element.tagName
       }">\n${ergodicAst(element, _t)}${_t}</div>\n`;
+    }
+
+    res = res + child;
   }
   return res;
 };
@@ -123,12 +137,12 @@ const createSkeleton = async (
   await page.waitForSelector(selector);
   //在客户端 window注册函数
   await page.exposeFunction('getSelector', () => selector);
-
+  await page.exposeFunction('getMapDomIgnoreLabels', () => mapDomIgnoreLabels)
   const res = await page.evaluate(`(async () => {
    // @ts-ignore
    const selector = await getSelector()
+   const mapDomIgnoreLabels = await getMapDomIgnoreLabels()
    const dom = document.querySelector(selector);
-   console.log('dom',dom)
    if (!dom) {
       return
    }
@@ -138,10 +152,14 @@ const createSkeleton = async (
       }
       let arr = []
       for (const ele of dom.children) {
+         if (mapDomIgnoreLabels.includes(ele.tagName)) {
+            continue;
+         }
          const rect = ele.getBoundingClientRect()
          const obj = {
             tagName: ele.tagName,
             rect: JSON.parse(JSON.stringify(rect)),
+            innerText: ele.innerText,
             children: fn(ele)
          }
          arr.push(obj)
@@ -151,6 +169,7 @@ const createSkeleton = async (
    const res = {
       tagName: dom.tagName,
       rect: JSON.parse(JSON.stringify(dom.getBoundingClientRect())),
+      innerText: dom.innerText,
       children: fn(dom)
    }
    return res
@@ -158,6 +177,8 @@ const createSkeleton = async (
   console.log('browser', browser);
   createHtml(res, options);
   replacePageElements(page, options.selector);
+  await sleep(500)
+  createSkeletonPicture(page)
 };
 
 export default createSkeleton;

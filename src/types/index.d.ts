@@ -2,7 +2,7 @@
  * @Description:
  * @Date: 2022-02-24 16:44:16
  * @FilePath: /easy-skeleton/src/types/index.d.ts
- * @LastEditTime: 2022-03-04 11:59:19
+ * @LastEditTime: 2022-03-08 17:39:52
  */
 export interface OptionsType {
   pageUrl: string;
@@ -29,5 +29,6 @@ interface rectType {
 export interface AstType {
   tagName: string;
   rect: rectType;
+  innerText: string;
   children: Array<AstType>;
 }

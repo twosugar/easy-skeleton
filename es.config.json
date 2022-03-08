@@ -1,7 +1,8 @@
 {
     "headless": false,
-    "pageUrl": "http://www.baidu.com",
-    "selector": ".s-hotsearch-content",
+    "pageUrl": "https://baijiahao.baidu.com/s?id=1726598266430942877&wfr=spider&for=pc",
+    "selector": "body",
     "skeletonColor": "",
-    "waitTime": ""
+    "waitTime": "",
+    "device": "iPhone 11 Pro"
 }
