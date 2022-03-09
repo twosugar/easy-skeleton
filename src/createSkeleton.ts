@@ -2,13 +2,18 @@
  * @Description: create selecton by selector
  * @Date: 2022-02-28 14:45:16
  * @FilePath: /easy-skeleton/src/createSkeleton.ts
- * @LastEditTime: 2022-03-08 18:04:26
+ * @LastEditTime: 2022-03-09 18:46:26
  */
 import { Page, Browser } from 'puppeteer';
 import fs from 'fs';
 import colors from 'colors';
 import { OptionsType, AstType } from './types/index';
-import { sleep, renderSkeletonIgnoreLabels, mapDomIgnoreLabels } from './util';
+import {
+  sleep,
+  renderSkeletonIgnoreLabels,
+  mapDomIgnoreLabels,
+  isNeedToSkipRendering,
+} from './util';
 
 /**
  * @description: 生成骨架屏 html
@@ -20,17 +25,13 @@ const createHtml = (params: AstType, options: OptionsType): void => {
   const rect = params.rect;
   const color = options.skeletonColor || '#f7f8fb';
   const className = params.children?.length ? '' : 'skeleton-common';
-
-  const str = `<div id="skeleton-container" class="${className}" style="position:relative;z-index:9999;width:${
+  const str = `<div id="skeleton-container" class="${className}" style="position:absolute;top:0;left:0;z-index:1;width:${
     rect.width
   }px;height:${rect.height}px" data-tag="${params.tagName}">\n\t<style>
     .skeleton-common {
       background-color: ${color};
-      animation: loading 8s linear infinite;
       background-image: linear-gradient(50deg, ${color}, ${color} 52%, #ffffff 55%, ${color} 58%, ${color});
       background-size: 400% 100%;
-      transform: translate3d(0, 0, 0);
-      border-radius: 4px;
     }
     @keyframes loading {
       0% {
@@ -82,7 +83,16 @@ const replacePageElements = async (
     //string转dom
     const dom = document.createRange().createContextualFragment(domString)
     const selectorDom = document.querySelector(selector)
-    selectorDom.replaceWith(dom)
+    // selectorDom.replaceWith(dom)
+    const style = selectorDom.getAttribute('style') || ''
+    //方便截图 不被其他遮挡
+    selectorDom.setAttribute('style', style + ';position:relative;z-index:99999')
+    console.log('selectorDom',selectorDom)
+    selectorDom.appendChild(dom)
+    //复原位置
+    setTimeout(() => {
+      selectorDom.setAttribute('style', style + ';position:relative;z-index:1')
+    }, 1500)
   })()`);
 };
 
@@ -101,7 +111,7 @@ const createSkeletonPicture = async (page: Page) => {
  * @Date: 2022-03-04 13:41:14
  */
 const ergodicAst = (params: AstType, t: string): string => {
-  if (!params?.children?.length) {
+  if (!params?.children?.length || isNeedToSkipRendering(params.currentStyle)) {
     return '';
   }
   const _t = t + '\t';
@@ -163,7 +173,8 @@ const createSkeleton = async (
             tagName: ele.tagName,
             rect: JSON.parse(JSON.stringify(rect)),
             innerText: ele.innerText,
-            children: fn(ele)
+            children: fn(ele),
+            currentStyle: JSON.parse(JSON.stringify(window.getComputedStyle(ele))),
          }
          arr.push(obj)
       }
@@ -173,7 +184,8 @@ const createSkeleton = async (
       tagName: dom.tagName,
       rect: JSON.parse(JSON.stringify(dom.getBoundingClientRect())),
       innerText: dom.innerText,
-      children: fn(dom)
+      children: fn(dom),
+      currentStyle: JSON.parse(JSON.stringify(window.getComputedStyle(dom))),
    }
    return res
   })()`);

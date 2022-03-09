@@ -1,8 +1,8 @@
 {
     "headless": false,
-    "pageUrl": "https://baijiahao.baidu.com/s?id=1726598266430942877&wfr=spider&for=pc",
-    "selector": "body",
+    "pageUrl": "https://juejin.cn/",
+    "selector": ".timeline-content",
     "skeletonColor": "",
     "waitTime": "",
-    "device": "iPhone 11 Pro"
+    "device": ""
 }
