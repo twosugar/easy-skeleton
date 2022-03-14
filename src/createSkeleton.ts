@@ -2,18 +2,13 @@
  * @Description: create selecton by selector
  * @Date: 2022-02-28 14:45:16
  * @FilePath: /easy-skeleton/src/createSkeleton.ts
- * @LastEditTime: 2022-03-09 18:46:26
+ * @LastEditTime: 2022-03-14 19:03:41
  */
 import { Page, Browser } from 'puppeteer';
 import fs from 'fs';
 import colors from 'colors';
 import { OptionsType, AstType } from './types/index';
-import {
-  sleep,
-  renderSkeletonIgnoreLabels,
-  mapDomIgnoreLabels,
-  isNeedToSkipRendering,
-} from './util';
+import { sleep, mapDomIgnoreLabels, isNeedToSkipRendering } from './util';
 
 /**
  * @description: 生成骨架屏 html
@@ -22,26 +17,24 @@ import {
  * @Date: 2022-03-04 13:37:36
  */
 const createHtml = (params: AstType, options: OptionsType): void => {
-  const rect = params.rect;
-  const color = options.skeletonColor || '#f7f8fb';
+  const { skeletonBackgroundColor, skeletonColor } = options;
+  const { rect, currentStyle } = params;
+  const color = skeletonColor || '#f7f8fb';
   const className = params.children?.length ? '' : 'skeleton-common';
   const str = `<div id="skeleton-container" class="${className}" style="position:absolute;top:0;left:0;z-index:1;width:${
     rect.width
-  }px;height:${rect.height}px" data-tag="${params.tagName}">\n\t<style>
+  }px;height:${
+    rect.height
+  }px;background-color:${skeletonBackgroundColor}" data-tag="${
+    params.tagName
+  }">\n\t<style>
     .skeleton-common {
+      position:absolute;
       background-color: ${color};
       background-image: linear-gradient(50deg, ${color}, ${color} 52%, #ffffff 55%, ${color} 58%, ${color});
       background-size: 400% 100%;
     }
-    @keyframes loading {
-      0% {
-          background-position: 400% 50%
-      }
-      to {
-          background-position: 0% 50%
-      }
-    }
-    </style>\n${ergodicAst(params, '')}</div>`;
+    </style>\n${ergodicAst(params, rect, currentStyle)}</div>`;
 
   if (!fs.existsSync('./skeletonFile')) {
     fs.mkdirSync('./skeletonFile');
@@ -107,36 +100,35 @@ const createSkeletonPicture = async (page: Page) => {
  * @description: 遍历dom json树
  * @param {AstType} params  dom json树
  * @param {string} t 空格 用于规范输出格式
+ * @param {string} containerRect 最外层父节点位置信息
  * @return {*} 子节点dom
  * @Date: 2022-03-04 13:41:14
  */
-const ergodicAst = (params: AstType, t: string): string => {
-  if (!params?.children?.length || isNeedToSkipRendering(params.currentStyle)) {
+const ergodicAst = (
+  params: AstType,
+  containerRect: any,
+  currentStyle: any
+): string => {
+  if (!params?.children?.length || isNeedToSkipRendering(params)) {
     return '';
   }
-  const _t = t + '\t';
   let res = '';
   for (const element of params.children) {
     const rect = element.rect;
-    const className = element.children?.length ? '' : 'skeleton-common';
-    let child = '';
-    // 没有显示内容的标签，就算有width、height也不显示
-    const ignoreCondition =
-      renderSkeletonIgnoreLabels.includes(element.tagName) &&
-      !element.children?.length &&
-      !element.innerText;
-    if (ignoreCondition) {
-      child = '';
-    } else {
-      child = `${_t}<div class="${className}" style="position:absolute;width:${
-        rect.width
-      }px;height:${rect.height}px;left:${rect.left -
-        params.rect.left}px;top:${rect.top - params.rect.top}px;" data-tag="${
-        element.tagName
-      }">\n${ergodicAst(element, _t)}${_t}</div>\n`;
+    const className = element.children?.length ? '' : `class="skeleton-common"`;
+    if (currentStyle) {
+    }
+    if (className) {
+      res =
+        res +
+        `\t<div ${className} style="width:${rect.width}px;height:${
+          rect.height
+        }px;left:${rect.left - containerRect.left}px;top:${rect.top -
+          containerRect.top}px;" data-tag="${element.tagName}"></div>\n`;
+      continue;
     }
 
-    res = res + child;
+    res = res + ergodicAst(element, containerRect, currentStyle);
   }
   return res;
 };
@@ -151,7 +143,7 @@ const createSkeleton = async (
   //在客户端 window注册函数
   await page.exposeFunction('getSelector', () => selector);
   await page.exposeFunction('getMapDomIgnoreLabels', () => mapDomIgnoreLabels);
-  const res = await page.evaluate(`(async () => {
+  const res: any = await page.evaluate(`(async () => {
    // @ts-ignore
    const selector = await getSelector()
    const mapDomIgnoreLabels = await getMapDomIgnoreLabels()

@@ -2,7 +2,7 @@
  * @Description: puppeteer open brower
  * @Date: 2022-02-24 14:53:22
  * @FilePath: /easy-skeleton/src/openBrowser.ts
- * @LastEditTime: 2022-03-04 19:17:20
+ * @LastEditTime: 2022-03-14 17:57:28
  */
 import puppeteer, { Page, Browser } from 'puppeteer';
 // import fs from 'fs';
@@ -32,7 +32,10 @@ const openBrowser = async (
     await page.emulate(device);
   }
 
-  await page.goto(options.pageUrl, { timeout: 60 * 1000 });
+  await page.goto(options.pageUrl, {
+    waitUntil: 'networkidle0',
+    timeout: options.waitTime || 60 * 1000,
+  });
   return { page, browser };
 };
 

@@ -2,7 +2,8 @@
     "headless": false,
     "pageUrl": "https://juejin.cn/",
     "selector": ".timeline-content",
+    "skeletonBackgroundColor": "transparent",
     "skeletonColor": "",
-    "waitTime": "",
-    "device": ""
+    "waitTime": null,
+    "device": null
 }

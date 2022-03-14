@@ -1,10 +1,8 @@
 /*
  * @Description: 工具集
- * @Author: ytang5
  * @Date: 2022-02-28 18:46:43
- * @LastEditors: ytang5
  * @FilePath: /easy-skeleton/src/util.ts
- * @LastEditTime: 2022-03-09 18:27:21
+ * @LastEditTime: 2022-03-14 19:05:20
  */
 
 export const sleep = (time: number) => {
@@ -26,20 +24,34 @@ export const mapDomIgnoreLabels = ['SCRIPT', 'LINK', 'STYLE'];
 /**
  * @description: 是否需要跳过渲染
  */
-export const isNeedToSkipRendering = (paramsStyle: any): boolean => {
-  if (!paramsStyle) {
+export const isNeedToSkipRendering = (params: any = {}): boolean => {
+  const { currentStyle, tagName, innerText } = params;
+  if (!currentStyle) {
     return true;
   }
   // 层级低 相当于隐藏
-  if (paramsStyle['position'] && paramsStyle['zIndex'] < 1) {
+  if (currentStyle['position'] && currentStyle['zIndex'] < 1) {
     return true;
   }
   // 隐藏
   if (
-    paramsStyle['display']?.includes('none') ||
-    paramsStyle['visibility']?.includes('hidden')
+    currentStyle['display']?.includes('none') ||
+    currentStyle['visibility']?.includes('hidden')
   ) {
     return true;
   }
+
+  // 没有显示内容的标签，就算有width、height也不显示
+  if (renderSkeletonIgnoreLabels.includes(tagName) && !innerText) {
+    return true;
+  }
+
   return false;
+};
+
+export const checkHaveNecessaryAttribute = () => {};
+
+export const getNecessaryAttributes = (params: any = {}) => {
+  const { currentStyle } = params;
+  console.log('currentStyle', currentStyle);
 };

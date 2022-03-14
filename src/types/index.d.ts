@@ -2,7 +2,7 @@
  * @Description:
  * @Date: 2022-02-24 16:44:16
  * @FilePath: /easy-skeleton/src/types/index.d.ts
- * @LastEditTime: 2022-03-09 18:24:43
+ * @LastEditTime: 2022-03-14 18:45:19
  */
 export interface OptionsType {
   pageUrl: string;
@@ -13,6 +13,7 @@ export interface OptionsType {
   path?: string;
   waitTime?: number;
   skeletonColor?: string;
+  skeletonBackgroundColor?: string;
 }
 
 interface rectType {
