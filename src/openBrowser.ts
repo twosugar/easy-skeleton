@@ -2,7 +2,7 @@
  * @Description: puppeteer open brower
  * @Date: 2022-02-24 14:53:22
  * @FilePath: /easy-skeleton/src/openBrowser.ts
- * @LastEditTime: 2022-03-14 17:57:28
+ * @LastEditTime: 2022-05-05 14:27:35
  */
 import puppeteer, { Page, Browser } from 'puppeteer';
 // import fs from 'fs';
@@ -12,7 +12,7 @@ const openBrowser = async (
   options: OptionsType
 ): Promise<{ page: Page; browser: Browser }> => {
   const browser: Browser = await puppeteer.launch({
-    headless: options.headless === false ? false : true,
+    headless: options.isDebug === true ? false : true,
     defaultViewport: { width: 1440, height: 780 },
     ignoreHTTPSErrors: false, //忽略 https 报错
     args: [
@@ -31,6 +31,8 @@ const openBrowser = async (
   if (device) {
     await page.emulate(device);
   }
+
+  await page.setCookie(...(options.cookies ?? []));
 
   await page.goto(options.pageUrl, {
     waitUntil: 'networkidle0',

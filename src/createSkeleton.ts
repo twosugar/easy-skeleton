@@ -2,13 +2,13 @@
  * @Description: create selecton by selector
  * @Date: 2022-02-28 14:45:16
  * @FilePath: /easy-skeleton/src/createSkeleton.ts
- * @LastEditTime: 2022-03-14 19:03:41
+ * @LastEditTime: 2022-05-05 14:55:29
  */
-import { Page, Browser } from 'puppeteer';
+import { Page } from 'puppeteer';
 import fs from 'fs';
 import colors from 'colors';
 import { OptionsType, AstType } from './types/index';
-import { sleep, mapDomIgnoreLabels, isNeedToSkipRendering } from './util';
+import { mapDomIgnoreLabels, isNeedToSkipRendering } from './util';
 
 /**
  * @description: 生成骨架屏 html
@@ -17,7 +17,7 @@ import { sleep, mapDomIgnoreLabels, isNeedToSkipRendering } from './util';
  * @Date: 2022-03-04 13:37:36
  */
 const createHtml = (params: AstType, options: OptionsType): void => {
-  const { skeletonBackgroundColor, skeletonColor } = options;
+  const { skeletonBackgroundColor = 'transparent', skeletonColor } = options;
   const { rect, currentStyle } = params;
   const color = skeletonColor || '#f7f8fb';
   const className = params.children?.length ? '' : 'skeleton-common';
@@ -89,12 +89,40 @@ const replacePageElements = async (
   })()`);
 };
 
+/**
+ * @Date: 2022-05-05 11:26:13
+ * @description: 创建png图片
+ * @param {Page} page
+ */
 const createSkeletonPicture = async (page: Page) => {
   const content = await page.$('#skeleton-container');
-  await content?.screenshot({
-    path: './skeletonFile/skeleton.png',
-  });
+  try {
+    await content?.screenshot({
+      path: './skeletonFile/skeleton.png',
+    });
+    console.log(colors.green('write png-picture success!'));
+  } catch (error) {
+    console.log(colors.red('write png-picture fail:' + JSON.stringify(error)));
+  }
 };
+
+/**
+ * @Date: 2022-05-05 11:26:37
+ * @description: 创建base64图片
+ * @param {Page} page
+ */
+const createBase64Image = async () => {
+  const imageData = fs.readFileSync('./skeletonFile/skeleton.png');
+  const imageBase64 = imageData.toString('base64');
+  const imagePrefix = 'data:image/png;base64,';
+  const data = imagePrefix + imageBase64;
+  try {
+    fs.writeFileSync('./skeletonFile/skeleton.base64', data);
+    console.log(colors.green('write base64 success!'));
+  } catch (err) {
+    console.log(colors.red('write base64 fail' + JSON.stringify(err)));
+  }
+}
 
 /**
  * @description: 遍历dom json树
@@ -133,11 +161,8 @@ const ergodicAst = (
   return res;
 };
 
-const createSkeleton = async (
-  page: Page,
-  browser: Browser,
-  options: OptionsType
-) => {
+const createSkeleton = async (params:any) => {
+  const { page, options }: { page: Page, options: OptionsType } = params;
   const selector = options.selector || 'body';
   await page.waitForSelector(selector);
   //在客户端 window注册函数
@@ -181,11 +206,10 @@ const createSkeleton = async (
    }
    return res
   })()`);
-  console.log('browser', browser);
   createHtml(res, options);
-  replacePageElements(page, options.selector);
-  await sleep(500);
-  createSkeletonPicture(page);
+  await replacePageElements(page, options.selector);
+  await createSkeletonPicture(page); //创建png图片
+  createBase64Image(); //创建base64图片
 };
 
 export default createSkeleton;

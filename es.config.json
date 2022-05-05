@@ -1,9 +1,6 @@
 {
-    "headless": false,
+    "isDebug": true,
     "pageUrl": "https://juejin.cn/",
-    "selector": ".timeline-content",
-    "skeletonBackgroundColor": "transparent",
-    "skeletonColor": "",
-    "waitTime": null,
-    "device": null
+    "selector": ".entry-list-wrap .item",
+    "device": "iPhone 12 Pro"
 }

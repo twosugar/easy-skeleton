@@ -11,7 +11,7 @@
     "node": ">=10"
   },
   "bin": {
-    "easy-skeleton": "scripts/start.js"
+    "es": "scripts/start.js"
   },
   "scripts": {
     "start": "tsdx watch",
