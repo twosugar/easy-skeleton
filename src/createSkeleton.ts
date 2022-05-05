@@ -122,7 +122,7 @@ const createBase64Image = async () => {
   } catch (err) {
     console.log(colors.red('write base64 fail' + JSON.stringify(err)));
   }
-}
+};
 
 /**
  * @description: 遍历dom json树
@@ -161,8 +161,8 @@ const ergodicAst = (
   return res;
 };
 
-const createSkeleton = async (params:any) => {
-  const { page, options }: { page: Page, options: OptionsType } = params;
+const createSkeleton = async (params: any) => {
+  const { page, options }: { page: Page; options: OptionsType } = params;
   const selector = options.selector || 'body';
   await page.waitForSelector(selector);
   //在客户端 window注册函数
